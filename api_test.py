@@ -5,4 +5,4 @@ location = 'Annapolis'
 
 my_client = moonphase_client.WeatherClient(API)
 current_moonphase = my_client.get_moonphase(location)
-print('%d' % current_moonphase)
+print(current_moonphase)
