@@ -9,7 +9,7 @@ from api_test import current_moonphase
 pygame.init()
 
 # create the screen
-screen = pygame.display.set_mode((1920, 1080))          #1920x1080 is size of laptop
+screen = pygame.display.set_mode((800, 600))
 
 # Load in the background
 background = pygame.image.load('background.png')
@@ -21,8 +21,8 @@ pygame.display.set_icon(icon)
 
 # create a player and initialize location
 playerImg = pygame.image.load('ship.png')
-playerX = 1920/2
-playerY = 400
+playerX = 380
+playerY = 520
 playerX_change = 0
 
 # create moon and initialize location
@@ -49,8 +49,9 @@ if current_moonphase == 'Last Quarter':
 
 if current_moonphase == 'Waning Crescent':
     moonImg = pygame.image.load('waningcrescent.png')
-moonX = 1920/2
-moonY = 40
+
+moonX = 540
+moonY = 25
 moonX_change = 0
 
 # create enemies on the screen
@@ -59,33 +60,42 @@ enemyX = []
 enemyY = []
 enemyX_change = []
 enemyY_change = []
-num_enemies = 6
-
-# laser code
-# Ready - You can't see the laser on the screen
-# Fire - The bullet is currently moving
-
-laserImg = pygame.image.load('laser.png')
-laserX = 0
-laserY = 480
-laserX_change = 0
-laserY_change = 10
-laser_state = "ready"
+num_enemies = 8
 
 for i in range(num_enemies):
-    enemyImg.append(pygame.image.load('enemy.png'))
-    enemyX.append(random.randint(0, 736))
-    enemyY.append(random.randint(50, 150))
+    if i % 4 == 0:
+        enemy = 'enemy.png'
+    elif i % 4 == 1:
+        enemy = 'enemy1.png'
+    elif i % 4 == 2:
+        enemy = 'enemy2.png'
+    else:
+        enemy = 'enemy3.png'
+    enemyImg.append(pygame.image.load(enemy))
+    enemyX.append(random.randint(10, 750))
+    enemyY.append(random.randint(200, 250))
     enemyX_change.append(4)
     enemyY_change.append(40)
 
 
+# laser code
+laserImg = pygame.image.load('laser.png')
+laserX = 0
+laserY = 480
+laserX_change = 0
+laserY_change = 15
+laser_state = "ready"
+
+
 # Score
 score_value = 0
-font = pygame.font.Font('space_invaders.ttf', 32)
+font = pygame.font.Font('space_invaders.ttf', 22)
+
+textX = 10
+textY = 10
 
 # game over
-game_over_font = pygame.font.Font('space_invaders.ttf', 64)
+game_over_font = pygame.font.Font('space_invaders.ttf', 50)
 
 def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
@@ -111,7 +121,86 @@ def fire_laser(x, y):
 
 def isCollision(enemyX, enemyY, laserX, laserY):        # looked up collision logic for this
     distance = math.sqrt(math.pow(enemyX - laserX, 2) + (math.pow(enemyY - laserY, 2)))
-    if distance < 25:
+    if distance < 27:
         return True
     else:
         return False
+
+# loop to play game
+playing = True
+while playing:
+    # RGB = Red, Green, Blue
+    screen.fill((0, 0, 0))
+    # Background Image
+    screen.blit(background, (0, 0))
+    moon(moonX, moonY)
+    for event in pygame.event.get():        # end the game if you quit
+        if event.type == pygame.QUIT:
+            playing = False
+
+        # if keystroke is pressed check whether its right or left
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                playerX_change = -5
+            if event.key == pygame.K_RIGHT:
+                playerX_change = 5
+            if event.key == pygame.K_SPACE: # shoot laser with spacebar
+                if laser_state is "ready":
+                    laserSound = mixer.Sound("laser.wav")
+                    laserSound.play()
+                    # Get the current x cordinate of the spaceship
+                    laserX = playerX
+                    fire_laser(laserX, laserY)
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                playerX_change = 0
+
+
+    playerX += playerX_change
+    if playerX <= 0:
+        playerX = 0
+    elif playerX >= 736:
+        playerX = 736
+
+    # Enemy Movement
+    for i in range(num_enemies):
+
+        # Game Over
+        if enemyY[i] > 440:
+            for j in range(num_enemies):
+                enemyY[j] = 2000
+            game_over_text()
+            break
+
+        enemyX[i] += enemyX_change[i]
+        if enemyX[i] <= 0:
+            enemyX_change[i] = 4
+            enemyY[i] += enemyY_change[i]
+        elif enemyX[i] >= 736:
+            enemyX_change[i] = -4
+            enemyY[i] += enemyY_change[i]
+
+        # Collision
+        collision = isCollision(enemyX[i], enemyY[i], laserX, laserY)
+        if collision:
+            laserY = 480
+            laser_state = "ready"
+            score_value += 1
+            enemyX[i] = random.randint(0, 736)
+            enemyY[i] = random.randint(20, 150)
+
+        enemy(enemyX[i], enemyY[i], i)
+
+    # laser Movement
+    if laserY <= 0:
+        laserY = 480
+        laser_state = "ready"
+
+    if laser_state is "fire":
+        fire_laser(laserX, laserY)
+        laserY -= laserY_change
+
+    player(playerX, playerY)
+    show_score(textX, textY)
+    pygame.display.update()
