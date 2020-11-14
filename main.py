@@ -54,9 +54,13 @@ if current_moonphase == 'Last Quarter':
 if current_moonphase == 'Waning Crescent':
     moonImg = pygame.image.load('images/waningcrescent.png')
 
-moonX = 540
-moonY = 25
+moonX = 660
+moonY = 35
 moonX_change = 0
+
+titleImg = pygame.image.load('images/spaceinvaders_title.png')
+titlex = 210
+titley = 40
 
 # create enemies on the screen
 enemyImg = []
@@ -64,7 +68,7 @@ enemyX = []
 enemyY = []
 enemyX_change = []
 enemyY_change = []
-num_enemies = 8
+num_enemies = 12
 
 for i in range(num_enemies):
     if i % 4 == 0:
@@ -79,11 +83,11 @@ for i in range(num_enemies):
     enemyX.append(random.randint(10, 750))
     enemyY.append(random.randint(200, 250))
     enemyX_change.append(4)
-    enemyY_change.append(40)
+    enemyY_change.append(50)
 
 
 # laser code
-laserImg = pygame.image.load('sounds/laser.png')
+laserImg = pygame.image.load('images/laser.png')
 laserX = 0
 laserY = 480
 laserX_change = 0
@@ -126,6 +130,9 @@ def enemy(x, y, i):
 def moon(x, y):
     screen.blit(moonImg, (x, y))
 
+def title(x, y):
+    screen.blit(titleImg, (x, y))
+
 def fire_laser(x, y):
     global laser_state                                  # looked up use of global
     laser_state = "fire"
@@ -154,6 +161,7 @@ while playing:
     # Background Image
     screen.blit(background, (0, 0))
     moon(moonX, moonY)
+    title(titlex,titley)
     for event in pygame.event.get():        # end the game if you quit
         if event.type == pygame.QUIT:
             playing = False
