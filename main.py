@@ -16,7 +16,7 @@ background = pygame.image.load('background.png')
 
 # make caption for the window and add an icon
 pygame.display.set_caption("Hicks Space Invaders")
-icon = pygame.image.load('fullmoon.png')
+icon = pygame.image.load('moon.png')
 pygame.display.set_icon(icon)
 
 # create a player and initialize location
