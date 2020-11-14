@@ -1,121 +1,117 @@
+import math
+import random
+
 import pygame
+from pygame import mixer
+from api_test import current_moonphase
+
+# Initialize pygame
+pygame.init()
+
+# create the screen
+screen = pygame.display.set_mode((1920, 1080))          #1920x1080 is size of laptop
+
+# Load in the background
+background = pygame.image.load('background.png')
+
+# make caption for the window and add an icon
+pygame.display.set_caption("Hicks Space Invaders")
+icon = pygame.image.load('fullmoon.png')
+pygame.display.set_icon(icon)
+
+# create a player and initialize location
+playerImg = pygame.image.load('ship.png')
+playerX = 1920/2
+playerY = 400
+playerX_change = 0
+
+# create moon and initialize location
+if current_moonphase == 'New Moon':
+    moonImg = pygame.image.load('newmoon.png')
+
+if current_moonphase == 'Waxing Crescent':
+    moonImg = pygame.image.load('waxingcrescent.png')
+
+if current_moonphase == 'First Quarter':
+    moonImg = pygame.image.load('firstquarter.png')
+
+if current_moonphase == 'Waxing Gibbous':
+    moonImg = pygame.image.load('waxinggibbous.png')
+
+if current_moonphase == 'Full Moon':
+    moonImg = pygame.image.load('fullmoon.png')
+
+if current_moonphase == 'Waning Gibbous':
+    moonImg = pygame.image.load('waninggibbous.png')
+
+if current_moonphase == 'Last Quarter':
+    moonImg = pygame.image.load('lastquarter.png')
+
+if current_moonphase == 'Waning Crescent':
+    moonImg = pygame.image.load('waningcrescent.png')
+moonX = 1920/2
+moonY = 40
+moonX_change = 0
+
+# create enemies on the screen
+enemyImg = []
+enemyX = []
+enemyY = []
+enemyX_change = []
+enemyY_change = []
+num_enemies = 6
+
+# laser code
+# Ready - You can't see the laser on the screen
+# Fire - The bullet is currently moving
+
+laserImg = pygame.image.load('laser.png')
+laserX = 0
+laserY = 480
+laserX_change = 0
+laserY_change = 10
+laser_state = "ready"
+
+for i in range(num_enemies):
+    enemyImg.append(pygame.image.load('enemy.png'))
+    enemyX.append(random.randint(0, 736))
+    enemyY.append(random.randint(50, 150))
+    enemyX_change.append(4)
+    enemyY_change.append(40)
 
 
-class Game:
-    screen = None
-    aliens = []
-    rockets = []
-    lost = False
+# Score
+score_value = 0
+font = pygame.font.Font('space_invaders.ttf', 32)
 
-    def __init__(self, width, height):
-        pygame.init()
-        self.width = width
-        self.height = height
-        self.screen = pygame.display.set_mode((width, height))
-        self.clock = pygame.time.Clock()
-        done = False
+# game over
+game_over_font = pygame.font.Font('space_invaders.ttf', 64)
 
-        hero = Hero(self, width / 2, height - 20)
-        generator = Generator(self)
-        rocket = None
+def show_score(x, y):
+    score = font.render("Score : " + str(score_value), True, (255, 255, 255))
+    screen.blit(score, (x, y))
 
-        while not done:
-            if len(self.aliens) == 0:
-                self.displayText("You Win!")
+def game_over_text():
+    game_over_text = game_over_font.render("GAME OVER", True, (255, 255, 255))
+    screen.blit(game_over_text, (200, 250))
 
-            pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_LEFT]:
-                hero.x -= 2 if hero.x > 20 else 0
-            elif pressed[pygame.K_RIGHT]:
-                hero.x += 2 if hero.x < width - 20 else 0
+def player(x, y):
+    screen.blit(playerImg, (x, y))
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    done = True
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not self.lost:
-                    self.rockets.append(Rocket(self, hero.x, hero.y))
+def enemy(x, y, i):
+    screen.blit(enemyImg[i], (x, y))
 
-            pygame.display.flip()
-            self.clock.tick(60)
-            self.screen.fill((0, 0, 0))
+def moon(x, y):
+    screen.blit(moonImg, (x, y))
 
-            for alien in self.aliens:
-                alien.draw()
-                alien.checkCollision(self)
-                if (alien.y > height):
-                    self.lost = True
-                    self.displayText("YOU DIED")
+def fire_laser(x, y):
+    global laser_state                                  # looked up use of global
+    laser_state = "fire"
+    screen.blit(laserImg, (x + 16, y + 10))
 
-            for rocket in self.rockets:
-                rocket.draw()
-
-            if not self.lost: hero.draw()
-
-    def displayText(self, text):
-        pygame.font.init()
-        font = pygame.font.SysFont('Arial', 50)
-        textsurface = font.render(text, False, (44, 0, 62))
-        self.screen.blit(textsurface, (110, 160))
-
-
-class Alien:
-    def __init__(self, game, x, y):
-        self.x = x
-        self.game = game
-        self.y = y
-        self.size = 30
-
-    def draw(self):
-        pygame.draw.rect(self.game.screen,  # renderovací plocha
-                         (81, 43, 88),  # barva objektu
-                         pygame.Rect(self.x, self.y, self.size, self.size))
-        self.y += 0.05
-
-    def checkCollision(self, game):
-        for rocket in game.rockets:
-            if (rocket.x < self.x + self.size and
-                    rocket.x > self.x - self.size and
-                    rocket.y < self.y + self.size and
-                    rocket.y > self.y - self.size):
-                game.rockets.remove(rocket)
-                game.aliens.remove(self)
-
-
-class Hero:
-    def __init__(self, game, x, y):
-        self.x = x
-        self.game = game
-        self.y = y
-
-    def draw(self):
-        pygame.draw.rect(self.game.screen,
-                         (210, 250, 251),
-                         pygame.Rect(self.x, self.y, 8, 5))
-
-
-class Generator:
-    def __init__(self, game):
-        margin = 30
-        width = 50
-        for x in range(margin, game.width - margin, width):
-            for y in range(margin, int(game.height / 2), width):
-                game.aliens.append(Alien(game, x, y))
-
-        # game.aliens.append(Alien(game, 280, 50))
-
-
-class Rocket:
-    def __init__(self, game, x, y):
-        self.x = x
-        self.y = y
-        self.game = game
-
-    def draw(self):
-        pygame.draw.rect(self.game.screen,
-                         (254, 52, 110),
-                         pygame.Rect(self.x, self.y, 2, 4))
-        self.y -= 2
-
-
-if __name__ == '__main__':
-    game = Game(600, 400)
+def isCollision(enemyX, enemyY, laserX, laserY):        # looked up collision logic for this
+    distance = math.sqrt(math.pow(enemyX - laserX, 2) + (math.pow(enemyY - laserY, 2)))
+    if distance < 25:
+        return True
+    else:
+        return False

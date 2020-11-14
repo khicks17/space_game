@@ -22,5 +22,5 @@ class WeatherClient:
 
 
         # Show some interesting weather data
-        current_moonphase = data['data']['weather'][0]['astronomy'][0]['moon_phase']
+        current_moonphase = str(data['data']['weather'][0]['astronomy'][0]['moon_phase'])
         return current_moonphase
