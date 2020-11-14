@@ -1,7 +1,8 @@
 import math
 import random
-
+import time
 import pygame
+
 from pygame import mixer
 from api_test import current_moonphase
 
@@ -12,43 +13,46 @@ pygame.init()
 screen = pygame.display.set_mode((800, 600))
 
 # Load in the background
-background = pygame.image.load('background.png')
+background = pygame.image.load('images/background.png')
+
+# create a initial time
+start_time = time.time()
 
 # make caption for the window and add an icon
 pygame.display.set_caption("Hicks Space Invaders")
-icon = pygame.image.load('moon.png')
+icon = pygame.image.load('images/moon.png')
 pygame.display.set_icon(icon)
 
 # create a player and initialize location
-playerImg = pygame.image.load('ship.png')
+playerImg = pygame.image.load('images/ship.png')
 playerX = 380
 playerY = 520
 playerX_change = 0
 
 # create moon and initialize location
 if current_moonphase == 'New Moon':
-    moonImg = pygame.image.load('newmoon.png')
+    moonImg = pygame.image.load('images/newmoon.png')
 
 if current_moonphase == 'Waxing Crescent':
-    moonImg = pygame.image.load('waxingcrescent.png')
+    moonImg = pygame.image.load('images/waxingcrescent.png')
 
 if current_moonphase == 'First Quarter':
-    moonImg = pygame.image.load('firstquarter.png')
+    moonImg = pygame.image.load('images/firstquarter.png')
 
 if current_moonphase == 'Waxing Gibbous':
-    moonImg = pygame.image.load('waxinggibbous.png')
+    moonImg = pygame.image.load('images/waxinggibbous.png')
 
 if current_moonphase == 'Full Moon':
-    moonImg = pygame.image.load('fullmoon.png')
+    moonImg = pygame.image.load('images/fullmoon.png')
 
 if current_moonphase == 'Waning Gibbous':
-    moonImg = pygame.image.load('waninggibbous.png')
+    moonImg = pygame.image.load('images/waninggibbous.png')
 
 if current_moonphase == 'Last Quarter':
-    moonImg = pygame.image.load('lastquarter.png')
+    moonImg = pygame.image.load('images/lastquarter.png')
 
 if current_moonphase == 'Waning Crescent':
-    moonImg = pygame.image.load('waningcrescent.png')
+    moonImg = pygame.image.load('images/waningcrescent.png')
 
 moonX = 540
 moonY = 25
@@ -64,13 +68,13 @@ num_enemies = 8
 
 for i in range(num_enemies):
     if i % 4 == 0:
-        enemy = 'enemy.png'
+        enemy = 'images/enemy.png'
     elif i % 4 == 1:
-        enemy = 'enemy1.png'
+        enemy = 'images/enemy1.png'
     elif i % 4 == 2:
-        enemy = 'enemy2.png'
+        enemy = 'images/enemy2.png'
     else:
-        enemy = 'enemy3.png'
+        enemy = 'images/enemy3.png'
     enemyImg.append(pygame.image.load(enemy))
     enemyX.append(random.randint(10, 750))
     enemyY.append(random.randint(200, 250))
@@ -79,7 +83,7 @@ for i in range(num_enemies):
 
 
 # laser code
-laserImg = pygame.image.load('laser.png')
+laserImg = pygame.image.load('sounds/laser.png')
 laserX = 0
 laserY = 480
 laserX_change = 0
@@ -89,13 +93,21 @@ laser_state = "ready"
 
 # Score
 score_value = 0
-font = pygame.font.Font('space_invaders.ttf', 22)
+font = pygame.font.Font('font/space_invaders.ttf', 22)
 
 textX = 10
 textY = 10
 
 # game over
-game_over_font = pygame.font.Font('space_invaders.ttf', 50)
+game_over_font = pygame.font.Font('font/space_invaders.ttf', 50)
+
+def timer(start_time):          # needs to be fixed so that it creates a running timer from 60 seconds
+    time_remaining = 60 - (start_time - time.time())
+    timer_x = 300
+    timer_y = 5
+    if time_remaining >= 0:
+        timer_text = font.render("Time Remainng: " + str(time_remaining), True, (255, 255, 255))
+        screen.blit(timer_text,(timer_x,timer_y))
 
 def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
@@ -126,6 +138,14 @@ def isCollision(enemyX, enemyY, laserX, laserY):        # looked up collision lo
     else:
         return False
 
+def isCollision_moon(moonX, moonY, laserX, laserY):        # looked up collision logic for this
+    distance = math.sqrt(math.pow(moonX - laserX, 2) + (math.pow(moonY - laserY, 2)))
+    if distance < 27:
+        return True
+    else:
+        return False
+
+
 # loop to play game
 playing = True
 while playing:
@@ -146,7 +166,7 @@ while playing:
                 playerX_change = 5
             if event.key == pygame.K_SPACE: # shoot laser with spacebar
                 if laser_state is "ready":
-                    laserSound = mixer.Sound("laser.wav")
+                    laserSound = mixer.Sound("sounds/laser.wav")
                     laserSound.play()
                     # Get the current x cordinate of the spaceship
                     laserX = playerX
