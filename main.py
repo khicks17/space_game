@@ -81,9 +81,9 @@ for i in range(num_enemies):
         enemy = 'images/enemy3.png'
     enemyImg.append(pygame.image.load(enemy))
     enemyX.append(random.randint(10, 750))
-    enemyY.append(random.randint(200, 250))
+    enemyY.append(random.randint(60, 250))
     enemyX_change.append(4)
-    enemyY_change.append(50)
+    enemyY_change.append(35)
 
 
 # laser code
@@ -169,9 +169,9 @@ while playing:
         # if keystroke is pressed check whether its right or left
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                playerX_change = -5
+                playerX_change = -6
             if event.key == pygame.K_RIGHT:
-                playerX_change = 5
+                playerX_change = 6
             if event.key == pygame.K_SPACE: # shoot laser with spacebar
                 if laser_state is "ready":
                     laserSound = mixer.Sound("sounds/laser.wav")
@@ -216,7 +216,7 @@ while playing:
             laser_state = "ready"
             score_value += 1
             enemyX[i] = random.randint(0, 736)
-            enemyY[i] = random.randint(20, 150)
+            enemyY[i] = random.randint(50, 150)
 
         enemy(enemyX[i], enemyY[i], i)
 

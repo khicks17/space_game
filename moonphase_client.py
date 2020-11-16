@@ -4,14 +4,14 @@ class WeatherClient:
         self.API = API
 
     def get_moonphase(self, location):
-        city = location
+
         format = 'json'
 
         # URL Components
         scheme = "http"
         host = "api.worldweatheronline.com"
         resource = "/premium/v1/weather.ashx"
-        query = "key=%s&q=%s&format=%s&num_of_days=1" % (self.API,city,format)
+        query = "key=%s&q=%s&format=%s&num_of_days=1" % (self.API,location,format)
 
         # Put it all together
         url = scheme + "://" + host + resource + "?" + query
