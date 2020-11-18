@@ -15,12 +15,10 @@ screen = pygame.display.set_mode((800, 600))
 # Load in the background
 background = pygame.image.load('images/background.png')
 
-# create a initial time
-start_time = time.time()
 
 # make caption for the window and add an icon
 pygame.display.set_caption("Hicks Space Invaders")
-icon = pygame.image.load('images/moon.png')
+icon = pygame.image.load('images/ship.png')
 pygame.display.set_icon(icon)
 
 # create a player and initialize location
