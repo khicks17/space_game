@@ -70,7 +70,7 @@ num_enemies = 12
 
 for i in range(num_enemies):
     if i % 4 == 0:
-        enemy = 'images/enemy.png'
+        enemy = 'images/enemy0.png'
     elif i % 4 == 1:
         enemy = 'images/enemy1.png'
     elif i % 4 == 2:
@@ -119,6 +119,9 @@ def game_over_text():
     game_over_text = game_over_font.render("GAME OVER", True, (255, 255, 255))
     screen.blit(game_over_text, (200, 250))
 
+def title(x, y):
+    screen.blit(titleImg, (x, y))
+
 def player(x, y):
     screen.blit(playerImg, (x, y))
 
@@ -128,8 +131,6 @@ def enemy(x, y, i):
 def moon(x, y):
     screen.blit(moonImg, (x, y))
 
-def title(x, y):
-    screen.blit(titleImg, (x, y))
 
 def fire_laser(x, y):
     global laser_state                                  # looked up use of global
