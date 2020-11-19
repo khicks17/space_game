@@ -1,3 +1,7 @@
+# Portions of coded modified from the link below
+# Sounds taken from github file
+# https://github.com/attreyabhatt/Space-Invaders-Pygame
+
 import random
 import pygame
 from pygame import mixer
@@ -7,6 +11,10 @@ from api_test import current_moonphase
 NUM_ENEMIES = 12
 enemies = []
 BLOCKSIZE = 100
+SHIP_XDELTA = 6
+ENEMY_YDELTA = 40
+ENEMY_XDELTA = 4
+
 
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
@@ -19,11 +27,13 @@ font = pygame.font.Font('font/space_invaders.ttf', 22)
 game_over_font = pygame.font.Font('font/space_invaders.ttf', 50)
 
 
-def show_score(x,y):
+def show_score():
+    textX = 10
+    textY = 10
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
-    screen.blit(score, (x, y))
+    screen.blit(score, (textX, textY))
 
-def game_over_text(x,y):
+def game_over_text():
     game_over_text = game_over_font.render("GAME OVER", True, (255, 255, 255))
     screen.blit(game_over_text, (x, y))
 
@@ -39,12 +49,14 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = 380
         self.y = 520
-        self.move_x = 0  # move along X
-        self.frame = 0  # count frames
-    def display_Ship(self, x, y):
+    def showShip(self):
         screen.blit(self.image, self.x, self.y)
-    def control(self,x):
-        self.move_x += x
+
+    def move_left(self):
+        self.x = self.x - SHIP_XDELTA
+
+    def move_right(self):
+        self.x = self.x + SHIP_XDELTA
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -57,6 +69,7 @@ class Enemy(pygame.sprite.Sprite):
         self.move_x = 0  # move along X
         self.move_y = 0  # move along Y
         self.count = 12
+
     def draw_enemies(self):
         for i in range(NUM_ENEMIES):
             image_name = "images/enemy%d.png" % (i % 4)
@@ -64,9 +77,12 @@ class Enemy(pygame.sprite.Sprite):
             col = i
             enemies.append(Enemy(image_name, row, col))
         screen.blit(enemies, self.x, self.y)
-    def move(self,x,y):
-        self.move_x += x
-        self.move_y += y
+
+    def move_horizontal(self):
+        self.x = self.x +  ENEMY_XDELTA
+
+    def move_vertical(self):
+        self.y = self.y +  ENEMY_YDELTA
 
 class Laser(pygame.sprite.Sprite):
     def __init__(self):
@@ -78,10 +94,12 @@ class Laser(pygame.sprite.Sprite):
         self.x_change = 0
         self.y_change = 15
         self.state = "ready"
+
     def fire_laser(self,x,y):
         self.state = "fire"
         screen.blit(Laser.image, (x + 16, y + 10))
-    def display_Laser(self,x,y):
+
+    def display_Laser(self):
         screen.blit(self.image, self.x, self.y)
 
 class Moon(pygame.sprite.Sprite):
@@ -115,6 +133,7 @@ class Moon(pygame.sprite.Sprite):
         self.x = 660
         self.y = 35
         self.x_change = 0
+
     def displayMoon(self):
         screen.blit(self.image, self.x, self.y)
 
@@ -137,19 +156,54 @@ def main():
                 # if keystroke is pressed check whether its right or left
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        Ship.control()
+                        Ship.move_left()
                     if event.key == pygame.K_RIGHT:
-                        player.X_change = 6
+                        Ship.move_right()
                     if event.key == pygame.K_SPACE:  # shoot laser with spacebar
                         if laser_state is "ready":
                             laserSound = mixer.Sound("sounds/laser.wav")
                             laserSound.play()
-                            # Get the current x cordinate of the spaceship
-                            laserX = playerX
-                            fire_laser(laserX, laserY)
-                            Laser.
 
+        # Enemy Movement
+        for i in range(NUM_ENEMIES):
 
+            # Game Over
+            if Enemy[i] > 440:
+                for j in range(NUM_ENEMIES):
+                    Enemy[j] = 2000
+                game_over_text()
+                break
+
+            enemyX[i] += enemyX_change[i]
+            if enemyX[i] <= 0:
+                enemyX_change[i] = 4
+                enemyY[i] += enemyY_change[i]
+            elif enemyX[i] >= 736:
+                enemyX_change[i] = -4
+                enemyY[i] += enemyY_change[i]
+
+            # Collision
+            collision = isCollision(enemyX[i], enemyY[i], laserX, laserY)
+            if collision:
+                laserY = 480
+                laser_state = "ready"
+                score_value += 1
+                enemyX[i] = random.randint(0, 736)
+                enemyY[i] = random.randint(50, 150)
+
+            enemy(enemyX[i], enemyY[i], i)
+
+        # laser Movement
+        if laserY <= 0:
+            laserY = 480
+            laser_state = "ready"
+
+        if laser_state is "fire":
+            fire_laser(laserX, laserY)
+            laserY -= laserY_change
+    Ship.showShip()
+    show_score()
+    pygame.display.update()
 
 if __name__ == "__main__":
         main()

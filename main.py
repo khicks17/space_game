@@ -1,3 +1,7 @@
+# Portions of coded modified from the link below
+# Sounds taken from github file
+# https://github.com/attreyabhatt/Space-Invaders-Pygame
+
 import math
 import random
 import time
