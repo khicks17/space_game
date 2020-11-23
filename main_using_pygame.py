@@ -61,8 +61,6 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = 380
         self.y = 520
-    def showShip(self):
-        screen.blit(self.image, self.x, self.y)
 
     def move_left(self):
         self.x = self.x - SHIP_XDELTA
@@ -80,15 +78,7 @@ class Enemy(pygame.sprite.Sprite):
         self.y = col * BLOCKSIZE
         self.move_x = 0  # move along X
         self.move_y = 0  # move along Y
-        self.count = 12
 
-    def draw_enemies(self):
-        for i in range(NUM_ENEMIES):
-            image_name = "images/enemy%d.png" % (i % 4)
-            row = ((i % 6) + 20)
-            col = i
-            enemies.append(Enemy(image_name, row, col))
-        screen.blit(enemies, self.x, self.y)
 
     def move_horizontal(self):
         self.x += ENEMY_XDELTA
@@ -101,23 +91,23 @@ class Laser(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load('images/laser.png')
         self.rect = self.image.get_rect()
-        self.laser_state = LASER_STATE
+        self.laser_state = "ready"
         self.x = LASER_X
         self.y = LASER_Y
         self.x_change = 0
         self.y_change = 15
 
     def fire_laser(self,ShipX):
-        global LASER_X
-        if LASER_STATE is "ready":
+        if self.laser_state is "ready":
             laserSound = mixer.Sound("sounds/laser.wav")
             laserSound.play()
             # Get the current x coordinate of the spaceship
-            LASER_X = ShipX
-        screen.blit(Laser.image, (LASER_X + 16, LASER_Y + 10))
+            self.x = ShipX
+            self.y =
+
 
 class Moon(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, current_moonphase):
         super().__init__()
         if current_moonphase == 'New Moon':
             self.image = pygame.image.load('images/newmoon.png')
@@ -147,6 +137,7 @@ class Moon(pygame.sprite.Sprite):
         self.x = MOON_X
         self.y = MOON_Y
 
+
     def displayMoon(self):
         screen.blit(self.image, self.x, self.y)
 
@@ -156,7 +147,22 @@ def main():
     pygame.display.set_caption("Hicks Space Invaders")
     icon = pygame.image.load('images/moon.png')
     pygame.display.set_icon(icon)
-    Moon.displayMoon()
+    moon = Moon(current_moonphase)
+    ship = Ship()
+    laser = Laser()
+    enemies = pygame.sprite.Group()
+    allsprites = pygame.sprite.Group()
+
+    for i in range(NUM_ENEMIES):
+        image_name = "images/enemy%d.png" % (i % 4)
+        row = ((i % 6) + 20)
+        col = i
+        enemy = Enemy(image_name, row, col)
+        enemies.add(enemy)
+        allsprites.add(enemy)
+    allsprites.add(ship)
+    allsprites.add(moon)
+    allsprites.add(laser)
 
     playing = True
     while playing:
@@ -170,19 +176,20 @@ def main():
                 # if keystroke is pressed check whether its right or left
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        Ship.move_left()
+                        ship.move_left()
                     if event.key == pygame.K_RIGHT:
-                        Ship.move_right()
+                        ship.move_right()
                     if event.key == pygame.K_SPACE:  # shoot laser with spacebar
-                        if LASER_STATE is "ready":
+                        if laser.laser_state is "ready":
                             laserSound = mixer.Sound("sounds/laser.wav")
                             laserSound.play()
-'''
+
         # Enemy Movement
-        for i in range(NUM_ENEMIES):
+        for enemy in enemies.sprites():
+
 
             # Game Over
-            if Enemy[i] > 440:
+            if enemy.y > 440:
                 for j in range(NUM_ENEMIES):
                     Enemy[j] = 2000
                 game_over_text()
@@ -213,14 +220,14 @@ def main():
             LASER_STATE = "ready"
     # firing the laser
         if LASER_STATE is "fire":
-            Laser.fire_laser()
-            LASER_Y = LASER_Y - LASER_DELTA
-'''
+            laser.fire_laser()
+            laser. = LASER_Y - LASER_DELTA
 
-    Ship.showShip()
-    show_score()
-    pygame.display.update()
-    fpsClock.tick(FPS)
+
+        allsprites.draw(screen)
+        show_score()
+        pygame.display.update()
+        fpsClock.tick(FPS)
 
 if __name__ == "__main__":
         main()
