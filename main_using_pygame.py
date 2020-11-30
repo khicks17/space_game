@@ -11,7 +11,7 @@ from api_test import current_moonphase
 NUM_ENEMIES = 12
 enemies = []
 BLOCKSIZE = 100
-SHIP_XDELTA = 6
+
 
 LASER_X = 0
 LASER_Y = 480

@@ -1,10 +1,13 @@
 import pygame
-import
 
-NUM_ENEMIES = 12
-enemies = []
-BLOCKSIZE = 100
-SHIP_X_DELTA = 6
+
+X_BLOCKSIZE = 100
+X_OFFSET = 50
+Y_BLOCKSIZE = 60
+Y_OFFSET = 120
+
+
+SHIP_X_DELTA = 10
 
 LASER_X = 0
 LASER_Y = 480
@@ -14,39 +17,45 @@ LASER_DELTA = 15
 ENEMY_Y_DELTA = 40
 ENEMY_X_DELTA = 4
 
-MOON_X = 660
-MOON_Y = 35
+MOON_X = 710
+MOON_Y = 65
+
+SHIP_X = 380
+SHIP_Y = 520
 
 class Ship(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
         self.image = pygame.image.load('images/ship.png')
         self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
+        self.rect.centerx = x
+        self.rect.centery = y
+        self.ship_speed = 0
 
 
     def move_left(self):
-        self.x = self.x - SHIP_X_DELTA
+        self.ship_speed = -SHIP_X_DELTA
 
     def move_right(self):
-        self.x = self.x + SHIP_X_DELTA
+        self.ship_speed = SHIP_X_DELTA
+
+    def update(self, *args, **kwargs) -> None:
+        self.rect.centerx += self.ship_speed
+
+    def stop(self):
+        self.ship_speed = 0
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self,image_name,row,col):
         super().__init__()
         self.image = pygame.image.load(image_name)
         self.rect = self.image.get_rect()
-        self.x = row * BLOCKSIZE
-        self.y = col * BLOCKSIZE
-        self.x_change = 0  # move along X
-        self.y_change = 0  # move along Y
+        self.rect.centerx = (col*X_BLOCKSIZE) + (X_OFFSET)
+        self.rect.centery = (row*Y_BLOCKSIZE) + (Y_OFFSET)
+        self.x_speed = 6
 
-    def move_horizontal(self):
-        self.x += ENEMY_X_DELTA
-
-    def move_vertical(self):
-        self.y += ENEMY_Y_DELTA
+    def update(self, *args, **kwargs) -> None:
+        self.rect.centerx += self.x_speed
 
 class Moon(pygame.sprite.Sprite):
     def __init__(self, current_moonphase):
@@ -76,12 +85,10 @@ class Moon(pygame.sprite.Sprite):
             self.image = pygame.image.load('images/waningcrescent.png')
 
         self.rect = self.image.get_rect()
-        self.x = MOON_X
-        self.y = MOON_Y
+        self.rect.centerx = MOON_X
+        self.rect.centery = MOON_Y
 
 
-    def displayMoon(self):
-        screen.blit(self.image, self.x, self.y)
 
 class Laser(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -89,15 +96,18 @@ class Laser(pygame.sprite.Sprite):
         self.image = pygame.image.load('images/laser.png')
         self.rect = self.image.get_rect()
         self.laser_state = "ready"
-        self.x = x
-        self.y = y
-        self.x_change = 0
-        self.y_change = 15
+        self.rect.centerx = x
+        self.rect.centery = y
+        self.laser_speed = 0
 
-    def fire_laser(self,x,y):
-        if self.laser_state is "ready":
-            laserSound = mixer.Sound("sounds/laser.wav")
-            laserSound.play()
-            # Get the current x coordinate of the spaceship
-            self.x = ship.x
-            self.y = ship.y
+    def update(self, *args, **kwargs) -> None:
+        self.rect.centery += self.laser_speed
+'''''
+class GameOver(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('images/game_over.png')
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+'''
