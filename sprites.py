@@ -6,6 +6,8 @@ X_OFFSET = 50
 Y_BLOCKSIZE = 60
 Y_OFFSET = 120
 
+HEIGHT = 600
+WIDTH = 800
 
 SHIP_X_DELTA = 10
 
@@ -57,6 +59,14 @@ class Enemy(pygame.sprite.Sprite):
     def update(self, *args, **kwargs) -> None:
         self.rect.centerx += self.x_speed
 
+class Kill(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('images/kill.png')
+        self.rect = self.image.get_rect()
+        self.rect.centerx = 100
+        self.rect.centery = 100
+
 class Moon(pygame.sprite.Sprite):
     def __init__(self, current_moonphase):
         super().__init__()
@@ -102,12 +112,3 @@ class Laser(pygame.sprite.Sprite):
 
     def update(self, *args, **kwargs) -> None:
         self.rect.centery += self.laser_speed
-'''''
-class GameOver(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.image.load('images/game_over.png')
-        self.rect = self.image.get_rect()
-        self.rect.centerx = x
-        self.rect.centery = y
-'''

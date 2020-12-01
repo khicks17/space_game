@@ -3,12 +3,12 @@
 # https://github.com/attreyabhatt/Space-Invaders-Pygame
 
 import pygame
-from sprites import Ship, Laser, Moon, Enemy
+from sprites import Ship, Laser, Moon, Enemy, Kill
 from api_test import current_moonphase
 
 NUM_ENEMIES = 24
 
-SHIP_LIVES = 3
+
 MAX_LASERS = 3
 
 SHIP_X = 380
@@ -36,6 +36,7 @@ FPS = 30 # frames per second setting
 fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 background = pygame.image.load('images/background.png')
+kill = pygame.image.load('images/kill.png')
 
 # Score
 score_value = 0
@@ -60,38 +61,44 @@ def title(x, y):
 
 def main():
     playing = True
+    kill_time = 0
     score_value = 0
+    SHIP_LIVES = 0
     pygame.display.set_caption("Hicks Space Invaders")
     icon = pygame.image.load('images/ship.png')
     pygame.display.set_icon(icon)
 
+
     moon = Moon(current_moonphase)
     ship = Ship(SHIP_X,SHIP_Y)
+    kill = Kill()
     laser = Laser(LASER_X,LASER_Y)
     enemies = pygame.sprite.Group()
     lasers = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
     title(title_x, title_y)
 
-    for i in range(NUM_ENEMIES):
-        image_name = "images/enemy%d.png" % (i % 4)
-        mod = (i % 4)
-        row = mod
-        if i < 4:
-            col = 1
-        elif i < 8:
-            col = 2
-        elif i < 12:
-            col = 3
-        elif i < 16:
-            col = 4
-        elif i < 20:
-            col = 5
-        elif i < 24:
-            col = 6
-        enemy = Enemy(image_name, row, col)
-        enemies.add(enemy)
-        all_sprites.add(enemy)
+    def makeEnemies():
+        for i in range(NUM_ENEMIES):
+            image_name = "images/enemy%d.png" % (i % 4)
+            mod = (i % 4)
+            row = mod
+            if i < 4:
+                col = 1
+            elif i < 8:
+                col = 2
+            elif i < 12:
+                col = 3
+            elif i < 16:
+                col = 4
+            elif i < 20:
+                col = 5
+            elif i < 24:
+                col = 6
+            enemy = Enemy(image_name, row, col)
+            enemies.add(enemy)
+    makeEnemies()
+    all_sprites.add(enemies)
     all_sprites.add(laser)
     all_sprites.add(ship)
     all_sprites.add(moon)
@@ -145,19 +152,37 @@ def main():
 
         # keep enemies in bounds
         laser_collisions = pygame.sprite.groupcollide(lasers,enemies,True,True)
+
+        if kill_time > 30:
+            kill.kill()
+            kill_time = 0
+
+
+        if laser_collisions:
+            all_sprites.add(kill)
+            print(score_value)
+
+
         score_value += len(laser_collisions)
+
         collisions = pygame.sprite.spritecollide(ship,enemies,False)
+
+
         if len(collisions) > 0:
-            #ship_lives -= 1
+            SHIP_LIVES -= 1
             collisions[0].kill()
 
-        #if len(enemies) == 0:
+        if len(enemies) == 0:
+            makeEnemies()
+            enemies.draw(screen)
 
-
+        kill_time += 1
         screen.blit(background, (0, 0))
-        show_score()
+
         lasers.draw(screen)
+
         all_sprites.draw(screen)
+        show_score()
         pygame.display.update()
         fpsClock.tick(FPS)
 
