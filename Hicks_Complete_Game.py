@@ -123,7 +123,7 @@ def main():
                     ship.move_left()
                 if event.key == pygame.K_RIGHT:
                     ship.move_right()
-                if event.key == pygame.K_SPACE: # shoot laser with spacebar
+                if event.key == pygame.K_SPACE and SHIP_LIVES > 0: # shoot laser with spacebar
                     if len(lasers.sprites()) < MAX_LASERS:
                         new_laser = Laser(ship.rect.centerx,ship.rect.centery)
                         new_laser.laser_speed = -LASER_DELTA
