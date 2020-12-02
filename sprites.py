@@ -48,16 +48,19 @@ class Ship(pygame.sprite.Sprite):
         self.ship_speed = 0
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self,image_name,row,col):
+    def __init__(self,image_name,row,col, level):
         super().__init__()
         self.image = pygame.image.load(image_name)
         self.rect = self.image.get_rect()
         self.rect.centerx = (col*X_BLOCKSIZE) + (X_OFFSET)
         self.rect.centery = (row*Y_BLOCKSIZE) + (Y_OFFSET)
-        self.x_speed = 6
+
+        # Change this to low or speed up how quickly the enemy speed increases
+        self.x_speed = 4 + 2*level
 
     def update(self, *args, **kwargs) -> None:
         self.rect.centerx += self.x_speed
+
 
 class Kill(pygame.sprite.Sprite):
     def __init__(self):
@@ -66,6 +69,15 @@ class Kill(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = 100
         self.rect.centery = 100
+
+class Title(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('images/spaceinvaders_title.png')
+        self.rect = self.image.get_rect()
+        self.rect.centerx = 480
+        self.rect.centery = 40
+
 
 class Moon(pygame.sprite.Sprite):
     def __init__(self, current_moonphase):
